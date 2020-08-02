@@ -3,7 +3,7 @@ var express 	= require('express'),
 	bodyParser 	= require('body-parser'),
 	mongoose 	= require('mongoose'),
 	Campground 	= require('./models/campground'),
-	//Comment		= require('./models/comment'),
+	Comment 	= require('./models/comment'),
 	seedDB		= require('./seeds')
 
 
@@ -69,6 +69,27 @@ app.get("/campgrounds/:id", function(req, res){
 });
 
 
+//COMMENTS
+app.post("/campgrounds/:id/comments", function(req, res){
+	Campground.findById(req.params.id, function(err, campground){
+		if (err){
+			console.log(err);
+			res.redirect("/campgrounds");
+		} else {
+			Comment.create(req.body.comment, function(err, comment){
+				if (err){
+					console.log(err);
+				} else {
+					campground.comments.push(comment);
+					campground.save();
+					res.redirect("/campgrounds/" + campground._id);
+				}
+			});
+		}
+	});
+});
+
+
 app.listen(3000, function(req, res){
 	console.log("Server has started...");
 });
@@ -98,4 +119,5 @@ sweets corner
 mbm sugesstions corner, semesters, exams, content
 quora, discord sort of
 resources:- students posting resources helpful for juniors, teachers posting resources, most liked post, most followed post
+stack overflow- college's corner
 */
