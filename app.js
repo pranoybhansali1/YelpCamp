@@ -3,7 +3,7 @@ var express 	= require('express'),
 	bodyParser 	= require('body-parser'),
 	mongoose 	= require('mongoose'),
 	Campground 	= require('./models/campground'),
-	Comment 	= require('./models/comment'),
+	Comment		= require('./models/comment'),
 	seedDB		= require('./seeds')
 
 
@@ -30,15 +30,11 @@ app.get("/campgrounds", function(req, res){
 		if(err){
 			console.log(err);
 		} else {
-			res.render("index", {campgrounds: allCampgrounds});
+			res.render("campgrounds/index", {campgrounds: allCampgrounds});
 		}
 	});
 });
 
-//NEW
-app.get("/campgrounds/new", function(req, res){
-	res.render("new");
-});
 
 //CREATE
 app.post("/campgrounds", function(req, res){
@@ -56,6 +52,10 @@ app.post("/campgrounds", function(req, res){
 	});
 });
 
+//NEW
+app.get("/campgrounds/new", function(req, res){
+	res.render("campgrounds/new");
+});
 
 //SHOW
 app.get("/campgrounds/:id", function(req, res){
@@ -63,30 +63,41 @@ app.get("/campgrounds/:id", function(req, res){
 		if(err){
 			console.log(err);
 		} else{
-			res.render("show", {campground: foundCampground});
+			res.render("campgrounds/show", {campground: foundCampground});
 		}
 	});
 });
 
-
 //COMMENTS
+app.get("/campgrounds/:id/comments/new", function(req, res){
+    Campground.findById(req.params.id, function(err, campground){
+        if(err){
+            console.log(err);
+        } else {
+             res.render("comments/new", {campground: campground});
+        }
+    })
+});
+
+
 app.post("/campgrounds/:id/comments", function(req, res){
-	Campground.findById(req.params.id, function(err, campground){
-		if (err){
-			console.log(err);
-			res.redirect("/campgrounds");
-		} else {
-			Comment.create(req.body.comment, function(err, comment){
-				if (err){
-					console.log(err);
-				} else {
-					campground.comments.push(comment);
-					campground.save();
-					res.redirect("/campgrounds/" + campground._id);
-				}
-			});
-		}
-	});
+   //lookup campground using ID
+   Campground.findById(req.params.id, function(err, campground){
+       if(err){
+           console.log(err);
+           res.redirect("/campgrounds");
+       } else {
+        Comment.create(req.body.comment, function(err, comment){
+           if(err){
+               console.log(err);
+           } else {
+               campground.comments.push(comment);
+               campground.save();
+               res.redirect('/campgrounds/' + campground._id);
+           }
+        });
+       }
+   });
 });
 
 
@@ -95,20 +106,6 @@ app.listen(3000, function(req, res){
 });
 
 
-
-
-
-/*
-campgrounds =
-	[
-		{name: "Himachal", image: "https://images.unsplash.com/photo-1476041800959-2f6bb412c8ce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60" },
-		{name: "Assam", image: "https://images.unsplash.com/photo-1542067519-6cd1e217df2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60" },
-		{name: "Abu", image: "https://images.unsplash.com/photo-1528433556524-74e7e3bfa599?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80" },
-		{name: "Himachal", image: "https://images.unsplash.com/photo-1476041800959-2f6bb412c8ce?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60" },
-		{name: "Assam", image: "https://images.unsplash.com/photo-1542067519-6cd1e217df2d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60" },
-		{name: "Abu", image: "https://images.unsplash.com/photo-1528433556524-74e7e3bfa599?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1050&q=80" }
-	]
-*/
 
 /*
 NAMES:-
@@ -119,5 +116,4 @@ sweets corner
 mbm sugesstions corner, semesters, exams, content
 quora, discord sort of
 resources:- students posting resources helpful for juniors, teachers posting resources, most liked post, most followed post
-stack overflow- college's corner
 */
