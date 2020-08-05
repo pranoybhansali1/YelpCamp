@@ -27,7 +27,7 @@ app.set("view engine", "ejs");
 
 app.use(express.static(__dirname + "/public"));
 
-seedDB();
+//seedDB();
 
 app.use(require("express-session")({
 	secret: "My name is Pranoy..",
